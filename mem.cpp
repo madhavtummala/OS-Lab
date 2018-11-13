@@ -1,10 +1,7 @@
 #include <iostream>
 #include <sstream>
-#include <map>
 
 using namespace std;
-
-#define pb push_back
 
 int main()
 {
@@ -98,11 +95,20 @@ int main()
 
 		else if(token=="print")
 		{
+			cout<<"Logical Addr\tChunk\t\tPhysical Space\n";
 			for(int j=0;j<max_size;j++)
 			{
 				if(m[j]){
 
-					cout<<"Logical Addr "<<j<<"\t\t";
+					cout<<j<<"\t\t";
+
+					int size=0;
+
+					for(int i=0;i<max_size;i++)
+						if(mem[i]==j)
+							size++;
+
+					cout<<size<<"\t\t";
 
 					for(int i=0;i<max_size;i++){
 

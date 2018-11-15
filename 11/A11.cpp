@@ -10,6 +10,7 @@ int main()
 	int *mem;
 	int max_size=0,allocate=0,addr=0,free=0;
 	int *m;
+	int rem;
 
 	do
 	{
@@ -34,6 +35,7 @@ int main()
 				m[i]=0;
 			}
 
+			rem = max_size;
 			printf("Initialized the memory : size %d\n",max_size);
 		}
 
@@ -46,16 +48,7 @@ int main()
 			{
 				int k=0;
 
-				for(int i=0;i<max_size;i++)
-				{
-					if(k==allocate) break;
-
-					if(mem[i]==-1){
-						k++;
-					}
-				}
-
-				if(k!=allocate) printf("No space availiable\n");
+				if(rem<allocate) printf("No space availiable\n");
 
 				else
 				{
@@ -72,6 +65,7 @@ int main()
 					}
 					printf("Allocated from %d to %d\n",addr,addr+allocate-1);
 					addr+=allocate;
+					rem-=allocate;
 				}
 			}
 		}
@@ -85,8 +79,10 @@ int main()
 			{
 				for(int i=0;i<max_size;i++)
 				{
-					if(mem[i]==free)
+					if(mem[i]==free){
 						mem[i]=-1;
+						rem++;
+					}
 				}
 				m[free]=0;
 			}

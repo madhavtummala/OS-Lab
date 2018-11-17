@@ -1,5 +1,5 @@
-#include <.2014021_2014012.FileSystemAPI.h>
-#include <.2014021_2014012.DiagnosticAPI.h>	
+#include <2014021_2014012.FileSystemAPI.h>
+#include <2014021_2014012.DiagnosticAPI.h>	
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

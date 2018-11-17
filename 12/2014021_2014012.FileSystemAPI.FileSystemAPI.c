@@ -207,7 +207,7 @@ int writeFile(int disk, char* filename, void* block){
 	if(write(disk,(void*)ex,2)!=2) return -2; //Setting 2 byte starting block of file
 	// printf("Sixth checkpoint\n");
 	//free(ex);
-	memcpy((void*)ex,(void*)(&block_size),2); //Copying number of blocks for file (data)
+	memcpy((void*)ex,(void*)(&block_size),2) ; //Copying number of blocks for file (data)
 	if(write(disk,(void*)ex,2)!=2) return -2; //Setting 2 byte size of file (in blocks)
 	// printf("Seventh checkpoint\n");
 	//free(ex);

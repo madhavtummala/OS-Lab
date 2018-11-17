@@ -24,7 +24,7 @@ filehandler myfopen(char *file_name)
 	char *filename = (char*)malloc(sizeof(char)*fNameSize);
 	memcpy(filename, file_name, fNameSize);
 
-	int Offs,bytes=0;
+	int Offs;
 
 	while(1)
 	{
@@ -34,7 +34,7 @@ filehandler myfopen(char *file_name)
 			return -1;
 		}
 
-		lseek(disk,bytes,SEEK_SET);
+		lseek(disk,-fAttrSize,SEEK_CUR);
 
 		memcpy((void*)fName, (void*)fAttr, fNameSize);
 		memcpy((void*)(&Offs), (void*)(fAttr+fNameSize), fOffsSize);
@@ -53,8 +53,6 @@ filehandler myfopen(char *file_name)
 			printf("No File and not space.\n");
 			return -1;
 		}
-		bytes+=11;
-		bytes+=Offs;
 	}
 
 	printf("File not found. Creating new file\n");
@@ -65,7 +63,7 @@ filehandler myfopen(char *file_name)
 		return -1;
 	}
 
-	lseek(disk,bytes,SEEK_SET);
+	lseek(disk,-fNameSize,SEEK_CUR);
 	return disk;
 }
 
@@ -91,12 +89,6 @@ int myfread(void *out, int howmanybytes, filehandler fh)
 		howmanybytes=bytes;
 	}
 
-	// if(write(disk,(void*)ex,fOffsSize)!=fOffsSize)
-	// {
-	// 	printf("Error in writing\n");
-	// 	return -1;
-	// }
-
 	if(read(fh, out, howmanybytes)!=howmanybytes)
 	{
 		printf("Error in reading\n");
@@ -108,4 +100,190 @@ int myfread(void *out, int howmanybytes, filehandler fh)
 	lseek(fh, 0, SEEK_SET);
 
 	return howmanybytes;
+}
+
+int myfwrite(void *in, int howmanybytes, filehandler fh)
+{
+	char *fAttr = (char*)malloc(sizeof(char)*fAttrSize);
+	char *fName = (char*)malloc(sizeof(char)*fNameSize);
+	char *filename = malloc(sizeof(char)*fNameSize);
+	char* ex = (char*)malloc(sizeof(char)*fOffsSize);
+	memcpy((void*)ex, (void*)(&howmanybytes), fOffsSize);
+	char *freename = (char*)malloc(sizeof(char)*fNameSize);
+	freename = "freearea";
+
+	int bytes;
+
+	if(read(fh, (void*)fAttr, fAttrSize)!=fAttrSize)
+	{
+		printf("Error in read\n");
+		return -1;
+	}
+
+	lseek(fh,-fAttrSize,SEEK_CUR);
+
+	memcpy((void*)fName, (void*)fAttr, fNameSize);
+	memcpy((void*)(&bytes), (void*)(fAttr+fNameSize), fOffsSize);
+
+	memcpy(filename, fName, fNameSize);
+
+
+	if(bytes==0)
+	{
+		lseek(fh, -fOffsSize, SEEK_CUR);
+		if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}
+		if(write(fh, in, howmanybytes)!=howmanybytes)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}		
+	}
+
+	else if(howmanybytes<=bytes && bytes-howmanybytes>=fAttrSize)
+	{	
+		lseek(fh, -fOffsSize, SEEK_CUR);
+		if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}		
+		if(write(fh, in, howmanybytes)!=howmanybytes)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}
+		if(write(fh,(void*)freename,fNameSize)!=fNameSize)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}
+
+		bytes=bytes-howmanybytes-fAttrSize;
+		memcpy((void*)ex, (void*)(&bytes), fOffsSize);
+
+		if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}				
+	}
+
+	else if(howmanybytes<=bytes)
+	{
+		if(write(fh, in, howmanybytes)!=howmanybytes)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}		
+	}
+
+	else
+	{
+		lseek(fh,-fAttrSize,SEEK_CUR);
+		if(write(fh,(void*)freename,fNameSize)!=fNameSize)
+		{
+			printf("Error in writing\n");
+			return -1;
+		}
+
+		lseek(fh,0,SEEK_SET);
+		while(1)
+		{
+			if(read(fh, (void*)fAttr, fAttrSize)!=fAttrSize)
+			{
+				printf("Error in read\n");
+				return -1;
+			}
+
+			lseek(fh,-fAttrSize,SEEK_CUR);
+
+			memcpy((void*)fName, (void*)fAttr, fNameSize);
+			memcpy((void*)(&bytes), (void*)(fAttr+fNameSize), fOffsSize);
+
+			if(strcmp(freename,fName)==0 && bytes>=howmanybytes)
+			{
+				if(bytes-howmanybytes>=fAttrSize)
+				{
+					if(write(fh,(void*)filename,fNameSize)!=fNameSize)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+					if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}		
+					if(write(fh, in, howmanybytes)!=howmanybytes)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+					if(write(fh,(void*)freename,fNameSize)!=fNameSize)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+
+					bytes=bytes-howmanybytes-fAttrSize;
+					memcpy((void*)ex, (void*)(&bytes), fOffsSize);
+
+					if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+				}
+				else
+				{
+					if(write(fh,(void*)filename,fNameSize)!=fNameSize)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+					lseek(fh, fOffsSize, SEEK_CUR);
+					if(write(fh, in, howmanybytes)!=howmanybytes)
+					{
+						printf("Error in writing\n");
+						return -1;
+					}
+				}
+			}
+
+			else if(strlen(fName)==0)
+			{
+				if(write(fh,(void*)filename,fNameSize)!=fNameSize)
+				{
+					printf("Error in writing\n");
+					return -1;
+				}				
+				if(write(fh,(void*)ex,fOffsSize)!=fOffsSize)
+				{
+					printf("Error in writing\n");
+					return -1;
+				}
+				if(write(fh, in, howmanybytes)!=howmanybytes)
+				{
+					printf("Error in writing\n");
+					return -1;
+				}					
+				break;
+			}
+
+			if(lseek(fh,bytes,SEEK_CUR)<0)
+			{
+				printf("No File and not space.\n");
+				return -1;
+			}
+		}
+	}
+
+	lseek(fh,0,SEEK_SET);
+
+	return howmanybytes;
+
 }

@@ -287,3 +287,8 @@ int myfwrite(void *in, int howmanybytes, filehandler fh)
 	return howmanybytes;
 
 }
+
+void myfclose(filehandler fh)
+{
+	close(fh);
+}

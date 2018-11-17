@@ -12,7 +12,7 @@
 #define fOffsSize 3
 
 //scans the disk for existing file or opens new file.
-filehandler myfopen(char *filename)
+filehandler myfopen(char *file_name)
 {
 	int disk=open("Mfs.dat", O_RDWR, S_IRUSR | S_IWUSR);
 
@@ -20,41 +20,52 @@ filehandler myfopen(char *filename)
 
 	char *fAttr = (char*)malloc(sizeof(char)*fAttrSize);
 	char *fName = (char*)malloc(sizeof(char)*fNameSize);
-	int Offs;
-	char fEnd[8] = "00000000";
-	char fFree[8] = "freearea";
+
+	char *filename = (char*)malloc(sizeof(char)*fNameSize);
+	memcpy(filename, file_name, fNameSize);
+
+	int Offs,bytes=0;
 
 	while(1)
 	{
-		if(read(disk, (void*)fAttr, fAttrSize)==-1)
+		if(read(disk, (void*)fAttr, fAttrSize)!=fAttrSize)
 		{
 			printf("Error in read\n");
 			return -1;
 		}
+
+		lseek(disk,bytes,SEEK_SET);
+
 		memcpy((void*)fName, (void*)fAttr, fNameSize);
 		memcpy((void*)(&Offs), (void*)(fAttr+fNameSize), fOffsSize);
+
+			
+		printf("Filename: %s length: %lu\n",fName,strlen(fName));
+
+		if(strlen(fName)==0)
+			break;
 
 		if(strcmp(filename,fName)==0)
 			return disk;
 
-		if(strcmp(fEnd,fName)==0)
-			break;
-
-		if(lseek(disk,Offs,SEEK_SET)<0)
+		if(lseek(disk,Offs,SEEK_CUR)<0)
 		{
 			printf("No File and not space.\n");
 			return -1;
 		}
+		bytes+=11;
+		bytes+=Offs;
 	}
 
 	printf("File not found. Creating new file\n");
+
 	if(write(disk,(void*)filename,fNameSize)!=fNameSize)
 	{
 		printf("Error in writing filename\n");
 		return -1;
 	}
 
-	printf("%d\n",disk);
+	lseek(disk,bytes,SEEK_SET);
 	return disk;
 
 }

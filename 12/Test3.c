@@ -11,10 +11,10 @@ int main()
 	char *out2 = (char*)malloc(sizeof(char)*40);
 	char *str;
 
-	char *filename = "firstfil";
+	char *filename = "thirdfil";
 	fh = myfopen(filename);
 
-	str = "this is from first file which is standard length";
+	str = "third?";
 
 	myfwrite(str, strlen(str), fh);
 	myfread(out1, 40, fh);
@@ -22,9 +22,9 @@ int main()
 	printf("Out: %s\n",out1);
 	myfclose(fh);
 
-	fh = myfopen("secondfi");
+	fh = myfopen("thirdfil");
 
-	str = "this is from second file";
+	str = "a bigger sentence for third file";
 
 	myfwrite(str, strlen(str), fh);
 	myfread(out2, 40, fh);

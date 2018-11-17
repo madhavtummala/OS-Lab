@@ -14,7 +14,7 @@ int main()
 	char *filename = "firstfil";
 	fh = myfopen(filename);
 
-	str = "this is from first file which is standard length";
+	str = "short";
 
 	myfwrite(str, strlen(str), fh);
 	myfread(out1, 40, fh);
@@ -24,7 +24,7 @@ int main()
 
 	fh = myfopen("secondfi");
 
-	str = "this is from second file";
+	str = "this is longer than before for second file";
 
 	myfwrite(str, strlen(str), fh);
 	myfread(out2, 40, fh);

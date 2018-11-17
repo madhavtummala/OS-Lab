@@ -1,55 +1,43 @@
-# eyeNode
-A simple file system implemented for CSE231 (Operating Systems) at IIITD, Monsoon 15.
+# Mfs - Simple File System
 
-#### Running a test program 
-```gcc Test.c .2014021_2014012.DiagnosticAPI.c .2014021_2014012.FileSystemAPI.c -I. -o to && ./to```
+Roll no - 16CS01041
+File System Assignment
 
-### Organisation:
-The file system (SFS) is maintained in blocks, with file support. Each file corresponds to a specific inode in the disk.
-File allocation is done by searching for contiguous blocks of memory. No freelist manager support ('S' of SFS ).
+### Details
+MfsLibrary.h - Custom file system library
+MfsLibrary.c - Custom Library Implementation
+MfsFormat.c - A Program to format the 100KB file system
+Mfs.dat - The complete file system with its contents
+Test[1-3].c - Test files
+run.sh - A helper script to run the complete test
 
-### Layout:
-* The disk is laid out as follows:
-1 block of data = 4 KB
-1 inode entry = 16B (8B filename,2B file head pointer,2B file block size,4B file size in B).
+### Instruction
+```
+chmod +x run.sh
+./run.sh
+cat Mfs.dat //for seeing the current status of FS
+```
 
-* Block 0:
-This is the super block. It stores Meta Data that can be used to identify the file system. Eg. The name of the file system "EyeNode FS"
+### Logic
+This is a basic file system. The allocation is continous.
+File Attributes - 11 B (8B Filename + 3B Offset to next file)
+File Data - upto 100 KB
 
-* Block 1: 
-This contains the inode bitmap.
+#### fopen
+For opennig a file, we match each existing filename with the given name and if it matches, return the file pointer or create a new file at the end of FS.
 
-* Block 2:
-This Contains the data bitmap.
+#### fread
+For reading, we simply state reading given bytes or max bytes of file data and store it in buffer.
 
-* Blocks 3 to 130:
-These contain the INode Data
+#### fwrite
+If the file is freshly created, we update the file size and store the file data. If existing file is overflowed by larger data, we find a continous free space that can allocated the new size or create at the end of FS, marking the current space as free.
 
-* Blocks 130 - End:
-These are the actual data blocks.
+#### fclose
+close(fd)
 
+### Remarks
+There is possibility of *internal fragmentation* here. This problem can be removed by implementing block structure and maintaining inodes and thier data to continous blocks.
 
-### Functionality Supported:
-* ``` int createSFS(char* filename, int nbytes)```
-Creates a disk with the name 'filename' of bytes 'nbytes' and returns the resultant file descriptor
+Even in this kind of inode structure the allocation of free space will be continous, so there will be *external fragmentaion.* To avoid this, we can use inode structue which points to each individual block of the file, hence the file is no longer continuos. This achieves maximum usage of disk.
 
-* ```int readData( int disk, int blockNum, void* block)```
-Accepts the file descriptor 'disk' and reads 4 KB of data starting at 'blockNum' block of data into 'block' buffer.Returns appropriate error code.
-
-* ```int writeData(int disk, int blockNum, void* block)``` writes that data in the block to the disk block blockNum. 
-Writes data stored in 'block' data buffer at 'blockNum' block of data memory stored in virtual disk pointed by file descriptor 'disk'. Returns appropriate error code.
-
-* ```int writeFile(int disk, char* filename, void* block)```
-Accepts file descriptor 'disk' and creates a new file with 'filename' with data from 'block' buffer.Does not check for existence of files with same name.Returns appropriate error code.
-
-* ``` int readFile(int disk, char* filename, void* block)```
-Accepts file descriptor 'disk' and reads data of file 'filename' into 'block' buffer.Returns appropriate error code.
-
-* ```  void print_inodeBitmaps(int fileSystemId)```
-Prints inode bitmap for SFS with 'fileSystemId' file descriptor virtual-SFS.
-
-* ```   void print_dataBitmaps(int fileSystemId)```
-Prints data bitmap for SFS with 'fileSystemId' file descriptor virtual-SFS.
-
-* ```   void print_FileList(int fileSystemId)```
-Prints list of files (with full metadata for each file) 'fileSystemId' file descriptor virtual-SFS.
+To find the free spaces availiable a *inode and data bitmaps* of 8 bit numbers are maintained. Each bit of each number corresponds to the status of one block. So the size of bitmap is determined by the no of blocks and hence the block size fixed for the FS. Typical block size is 4 KB.

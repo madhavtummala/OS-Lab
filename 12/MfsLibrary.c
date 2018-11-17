@@ -67,5 +67,45 @@ filehandler myfopen(char *file_name)
 
 	lseek(disk,bytes,SEEK_SET);
 	return disk;
+}
 
+int myfread(void *out, int howmanybytes, filehandler fh)
+{
+	lseek(fh, fNameSize, SEEK_CUR);
+
+	int bytes;
+
+	char* ex = (char*)malloc(sizeof(char)*fOffsSize);
+
+	if(read(fh, (void*)ex, fOffsSize)!=fOffsSize)
+	{
+		printf("Error in reading\n");
+		return -1;
+	}
+
+	memcpy((void*)(&bytes), (void*)ex, fOffsSize);
+
+	if(bytes<howmanybytes)
+	{
+		printf("File has only %d bytes, reading %d bytes\n",bytes,bytes);
+		howmanybytes=bytes;
+	}
+
+	// if(write(disk,(void*)ex,fOffsSize)!=fOffsSize)
+	// {
+	// 	printf("Error in writing\n");
+	// 	return -1;
+	// }
+
+	if(read(fh, out, howmanybytes)!=howmanybytes)
+	{
+		printf("Error in reading\n");
+		return -1;
+	}
+
+	printf("Read data: %s\n", (char*)out);
+
+	lseek(fh, 0, SEEK_SET);
+
+	return howmanybytes;
 }

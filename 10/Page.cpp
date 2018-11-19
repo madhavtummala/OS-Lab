@@ -19,9 +19,7 @@ int pageFaultsLRU(int pages[], int n, int capacity)
         {   
             if (s.find(pages[i])==s.end()) 
             { 
-                s.insert(pages[i]); 
-  
-            
+                s.insert(pages[i]);            
                 page_faults++; 
             } 
         
@@ -29,13 +27,9 @@ int pageFaultsLRU(int pages[], int n, int capacity)
         } 
   
         else
-        { 
-        
-        
+        {
             if (s.find(pages[i]) == s.end()) 
             { 
-            
-            
                 int lru = INT_MAX, val; 
                 for (auto it=s.begin(); it!=s.end(); it++) 
                 { 
@@ -45,14 +39,10 @@ int pageFaultsLRU(int pages[], int n, int capacity)
                         val = *it; 
                     } 
                 } 
-  
-            
-                s.erase(val); 
-  
-            
+
+                s.erase(val);
                 s.insert(pages[i]); 
-  
-            
+
                 page_faults++; 
             } 
   
@@ -66,59 +56,36 @@ int pageFaultsLRU(int pages[], int n, int capacity)
 
 int pageFaultsFCFS(int pages[], int n, int capacity) 
 { 
-
-
-
-    unordered_set<int> s; 
-  
-
+    unordered_set<int> s;
     queue<int> indexes; 
-  
 
     int page_faults = 0; 
     for (int i=0; i<n; i++) 
     { 
-    
         if (s.size() < capacity) 
         { 
-        
-        
             if (s.find(pages[i])==s.end()) 
             { 
                 s.insert(pages[i]); 
-  
-            
                 page_faults++; 
-  
             
                 indexes.push(pages[i]); 
             } 
         } 
-  
-    
-    
-    
+
         else
         {
-        
             if (s.find(pages[i]) == s.end()) 
             { 
-            
                 int val = indexes.front(); 
   
                 indexes.pop(); 
   
-            
                 s.erase(val); 
-  
-            
                 s.insert(pages[i]); 
-  
-            
-            
+
                 indexes.push(pages[i]); 
-  
-            
+
                 page_faults++; 
             } 
         } 
@@ -128,21 +95,17 @@ int pageFaultsFCFS(int pages[], int n, int capacity)
 }
 
 
-
 bool search(int key, vector<int>& fr) 
 { 
     for (int i = 0; i < fr.size(); i++) 
         if (fr[i] == key) 
             return true; 
     return false; 
-} 
-  
-
+}
 
 int predict(int pg[], vector<int>& fr, int pn, int index) 
 { 
-    
-    
+
     int res = -1, farthest = index; 
     for (int i = 0; i < fr.size(); i++) { 
         int j; 
@@ -156,38 +119,27 @@ int predict(int pg[], vector<int>& fr, int pn, int index)
             } 
         } 
   
-        
-        
+
         if (j == pn) 
             return i; 
     } 
   
-    
-    
-    
     return (res == -1) ? 0 : res; 
 } 
   
 int optimalPage(int pg[], int pn, int fn) 
 { 
-    
-    
+
     vector<int> fr; 
-  
-    
-    
+
     int hit = 0; 
     for (int i = 0; i < pn; i++) { 
-  
-        
+   
         if (search(pg[i], fr)) { 
             hit++; 
             continue; 
         } 
-  
-        
-  
-        
+   
         if (fr.size() < fn) 
             fr.push_back(pg[i]); 
   

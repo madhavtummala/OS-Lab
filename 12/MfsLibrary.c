@@ -297,6 +297,12 @@ int myfwrite(void *in, int howmanybytes, filehandler fh)
 
 }
 
+int myfseek(int pos, filehandler fh)
+{
+	if(lseek(fh,pos,SEEK_SET)<0) return -1;
+	return 0;
+}
+
 void myfclose(filehandler fh)
 {
 	close(fh);

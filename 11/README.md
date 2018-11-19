@@ -4,7 +4,7 @@
 
 ## Instructions
 ```
-g++ mem.cpp - mem
+g++ mem.cpp -o mem
 ./mem
 ```
 

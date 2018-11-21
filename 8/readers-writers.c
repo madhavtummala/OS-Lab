@@ -2,6 +2,50 @@
 #include<pthread.h>
 #include<dispatch/dispatch.h>
 
+/*
+
+wait(S){
+while(S<=0);   // busy waiting
+S--;
+}
+
+signal(S){
+S++;
+}
+
+*/
+
+/*
+do{
+
+//produce an item
+
+wait(empty);
+wait(mutex);
+
+//place in buffer
+
+signal(mutex);
+signal(full);
+
+}while(true)
+
+do{
+
+wait(full);
+wait(mutex);
+
+// remove item from buffer
+
+signal(mutex);
+signal(empty);
+
+// consumes item
+
+}while(true)
+
+*/
+
 dispatch_semaphore_t mutex,writeblock;
 int data = 0,rcount = 0;
 
